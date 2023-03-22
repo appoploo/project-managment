@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function Login() {
+export default function Home() {
   return (
     <div className="w-screen h-screen overflow-hidden flex justify-center items-center">
       <div className=" bg-white w-1/3 h-2/3 flex flex-col px-9 py-8">
