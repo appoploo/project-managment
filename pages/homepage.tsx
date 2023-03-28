@@ -1,9 +1,23 @@
+import { useAccount } from "@/providers";
+import axios, { isCancel, AxiosError } from "axios";
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 export default function HomePage() {
   const router = useRouter();
+  const account = useAccount();
+
+  // brings the data from the server in every renender and when the project array changes
+
+  useEffect(() => {
+    axios.get("https://fakestoreapi.com/products").then((e) => {
+      account.setProjects(e.data);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account.projects]);
+
   return (
     <div className="drawer drawer-end">
       <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
@@ -96,8 +110,8 @@ export default function HomePage() {
               <span className="absolute left-2 bottom-7">🔍</span>
               <input
                 type="text"
-                placeholder="  Search filter"
-                className="input input-bordered w-full  rounded-full bg-gray-300 mb-4 focus:outline-none placeholder:pl-[14px] px-6"
+                placeholder="Search filter"
+                className="input input-bordered w-full  rounded-full bg-gray-300 mb-4 focus:outline-none placeholder:pl-[14px] px-8"
               />
             </div>
 
@@ -114,7 +128,7 @@ export default function HomePage() {
                 </thead>
                 <tbody>
                   {/* row 1 */}
-                  <tr>
+                  <tr className="hover cursor-pointer">
                     <th>1</th>
                     <td>Cy Ganderton</td>
                     <td>Quality Control Specialist</td>
@@ -154,9 +168,9 @@ export default function HomePage() {
       </div>
       <div className="drawer-side">
         <label htmlFor="my-drawer-4" className="drawer-overlay"></label>
-        <div className="flex px-6 py-4 w-fit h-screen bg-base-100 text-base-content ">
+        <div className="flex px-6 pt-4 pb-4 w-fit h-screen bg-base-100 text-base-content ">
           {/* <!-- Sidebar content here --> */}
-          <div className="flex flex-col w-fit h-screen">
+          <div className="flex flex-col w-fit h-full ">
             <h1 className="mb-6 text-lg"> User’s New Project</h1>
             <form>
               <div className="grid grid-cols-2 gap-6">
@@ -238,36 +252,43 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="divider"></div>
-              <div className="flex flex-col ">
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2">
-                    <label htmlFor="project name" className="text-sm ">
-                      🇹 Project name
-                    </label>
-                    <input
-                      id="project name "
-                      type="text"
-                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <label htmlFor="url" className="text-sm">
-                      🔗 Url
-                    </label>
-                    <input
-                      id="url"
-                      type="url"
-                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
-                    />
-                  </div>
-                </div>
 
-                <div className="flex  justify-end items-end mt-auto">
+              <div className="flex flex-col gap-4 h-full">
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="project name" className="text-sm ">
+                    🇹 Project name
+                  </label>
+                  <input
+                    id="project name"
+                    type="text"
+                    className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
+                    required
+                  />
+                </div>
+                <div className="flex flex-col gap-2 ">
+                  <label htmlFor="url" className="text-sm">
+                    🔗 Url
+                  </label>
+                  <input
+                    id="url"
+                    type="url"
+                    placeholder="https://www.flowbite.com"
+                    className="peer input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none invalid:border-pink-500 invalid:ring-pink-500 px-6"
+                    required
+                  />
+                  <p className="invisible mt-2 text-sm text-pink-600 peer-invalid:visible">
+                    Please provide a valid email address.
+                  </p>
+                </div>
+                <div className="flex  justify-end items-end mt-auto ">
                   <div className="form-control">
-                    <div className="flex gap-2">
-                      <button className="drawer-button btn bg-transparent border-none text-black hover:bg-gray-300 normal-case w-auto h-fit px-12 py-3">
+                    <div className="flex gap-2 mb-2">
+                      <label
+                        htmlFor="my-drawer-4"
+                        className="drawer-button btn bg-transparent border-none text-black hover:bg-gray-300 normal-case w-auto h-fit px-12 py-3"
+                      >
                         Cancel
-                      </button>
+                      </label>
                       <button
                         type="submit"
                         className="drawer-button btn bg-black  normal-case w-auto h-fit px-12 py-3"
