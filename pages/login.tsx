@@ -24,7 +24,7 @@ export default function Home() {
           </button>
         </div>
 
-        <form className=" flex flex-col">
+        <form method="POST" action="/api/login" className=" flex flex-col">
           <div className="flex gap-4 mb-2 w-full h-full">
             <div className=" w-full">
               <label htmlFor="email" className="mb-2 block">
@@ -32,6 +32,7 @@ export default function Home() {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="you@example.com"
                 className="bg-gray-50 border h-fit w-full px-3 py-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block"
@@ -43,6 +44,7 @@ export default function Home() {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="••••••••"
                 className="bg-gray-50 border h-fit w-full px-3 py-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block"
@@ -132,7 +134,10 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <button className="btn w-full bg-blue-600 hover:bg-blue-700 normal-case ">
+          <button
+            type="submit"
+            className="btn w-full bg-blue-600 hover:bg-blue-700 normal-case "
+          >
             Sign in to your account
           </button>
         </form>

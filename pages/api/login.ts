@@ -16,9 +16,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           userName: email ?? "-",
         };
         await req.session.save();
-        return res.status(200).json({
-          loggedIn: true,
-        });
+        return res.status(301).redirect("/");
       } else return res.status(401).send("Unauthorized");
 
     default:

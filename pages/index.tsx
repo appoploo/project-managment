@@ -11,15 +11,18 @@ export default function HomePage() {
   const router = useRouter();
   const account = useAccount();
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [projectName, setProjectName] = useState<string>("");
+  const [projectUrl, setProjectUrl] = useState<string>("");
+  const [projects, setProjects] = useState<any[]>([]);
 
-  // brings the data from the server in every renender and when the project array changes
+  // brings the data from the server in every render
 
   useEffect(() => {
-    axios.get("https://fakestoreapi.com/products").then((e) => {
-      account.setProjects(e.data);
+    axios.get("/api/projects").then((e) => {
+      setProjects(e.data);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account.projects]);
+  }, []);
 
   return (
     <div>
@@ -31,9 +34,9 @@ export default function HomePage() {
             <ul className="menu bg-base-100 border-r border-gray-400 px-2 py-2">
               <li>
                 <Link
-                  href="/homepage"
+                  href="/"
                   className={clsx({
-                    "bg-primary": router.asPath === "/homepage",
+                    "bg-primary": router.asPath === "/",
                   })}
                 >
                   <svg
@@ -133,24 +136,31 @@ export default function HomePage() {
                       <th>url</th>
                     </tr>
                   </thead>
+                  {/* body */}
                   <tbody>
-                    {account.projects
+                    {projects
                       .filter((sm) => sm.name.includes(searchTerm))
-                      .map((p, idx) => (
-                        <tr key={idx} className="hover cursor-pointer">
-                          <th>{idx}</th>
-                          <td>{p.id}</td>
-                          <td>{p.name}</td>
-                          <td>
-                            <Link href={`${p.url}`} className="hover:underline">
-                              {p.url}
-                            </Link>
-                          </td>
-                          <td>
-                            <Link href="">🗑️</Link>
-                          </td>
-                        </tr>
-                      ))}
+                      .map((p, idx) => {
+                        return (
+                          <tr key={p.id} className="hover cursor-pointer">
+                            <th>{idx}</th>
+                            <td>{p.id}</td>
+                            <td>{p.name}</td>
+                            <td>
+                              <Link
+                                target="_blank" // renders the url of the selected project in another page
+                                href={`${p.url}`}
+                                className="hover:underline"
+                              >
+                                {p.url}
+                              </Link>
+                            </td>
+                            <td>
+                              <Link href="">🗑️</Link>
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               </div>
@@ -163,7 +173,21 @@ export default function HomePage() {
             {/* <!-- Sidebar content here --> */}
             <div className="flex flex-col w-fit h-full ">
               <h1 className="mb-6 text-lg"> User’s New Project</h1>
-              <form>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  axios
+                    .post("/api/projects", {
+                      name: projectName,
+                      url: projectUrl,
+                    })
+                    .then((response) => {
+                      setProjects([...projects, response.data]);
+                    });
+                  setProjectName("");
+                  setProjectUrl("");
+                }}
+              >
                 <div className="grid grid-cols-2 gap-6">
                   <div className="grid gap-2">
                     <label htmlFor="username" className="flex gap-2">
@@ -252,8 +276,12 @@ export default function HomePage() {
                     <input
                       id="project name"
                       type="text"
+                      value={projectName}
                       className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
                       required
+                      onChange={(evt) =>
+                        setProjectName(evt.currentTarget.value)
+                      }
                     />
                   </div>
                   <div className="flex flex-col gap-2 ">
@@ -261,11 +289,13 @@ export default function HomePage() {
                       🔗 Url
                     </label>
                     <input
+                      value={projectUrl}
                       id="url"
                       type="url"
                       placeholder="https://www.flowbite.com"
                       className="peer input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none invalid:border-pink-500 invalid:ring-pink-500 px-6"
                       required
+                      onChange={(evt) => setProjectUrl(evt.currentTarget.value)}
                     />
                     <p className="invisible mt-2 text-sm text-pink-600 peer-invalid:visible">
                       Please provide a valid email address.
@@ -281,6 +311,7 @@ export default function HomePage() {
                           Cancel
                         </label>
                         <button
+                          onClick={() => {}}
                           type="submit"
                           className="drawer-button btn bg-black  normal-case w-auto h-fit px-12 py-3"
                         >
