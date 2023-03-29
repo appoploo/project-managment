@@ -1,5 +1,4 @@
 import { accessLevel, withSessionSsr } from "@/lib/withSession";
-import { useAccount } from "@/providers";
 import axios, { isCancel, AxiosError } from "axios";
 import clsx from "clsx";
 import { GetServerSideProps } from "next";
@@ -9,8 +8,8 @@ import { useEffect, useState } from "react";
 
 export default function HomePage() {
   const router = useRouter();
-  const account = useAccount();
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [projectName, setProjectName] = useState<string>("");
   const [projectUrl, setProjectUrl] = useState<string>("");
   const [projects, setProjects] = useState<any[]>([]);
@@ -104,7 +103,7 @@ export default function HomePage() {
             <div className="bg-base-200 py-10 px-10 ">
               <div className="flex mb-10  w-full h-fit">
                 <h2 className="font-bold text-xl w-fit h-fit ">
-                  User’s Projects
+                  {"User" ? username : "User"}’s Projects
                 </h2>
                 <label
                   htmlFor="my-drawer-4"
@@ -156,7 +155,20 @@ export default function HomePage() {
                               </Link>
                             </td>
                             <td>
-                              <Link href="">🗑️</Link>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  axios
+                                    .delete(`/api/projects?id=${p.id}`)
+                                    .then((response) => {
+                                      setProjects([...projects, response.data]);
+                                    });
+                                }}
+
+                                // deletes the selected project and  the new list of projects
+                              >
+                                🗑️
+                              </button>
                             </td>
                           </tr>
                         );
@@ -169,10 +181,16 @@ export default function HomePage() {
         </div>
         <div className="drawer-side">
           <label htmlFor="my-drawer-4" className="drawer-overlay"></label>
-          <div className="flex px-6 pt-4 pb-4 w-fit h-screen bg-base-100 text-base-content ">
+          <div
+            className={
+              "flex px-6 pt-4 pb-4 w-fit h-screen bg-base-100 text-base-content "
+            }
+          >
             {/* <!-- Sidebar content here --> */}
             <div className="flex flex-col w-fit h-full ">
-              <h1 className="mb-6 text-lg"> User’s New Project</h1>
+              <h1 className="mb-6 text-lg">
+                {username ? username : "User"}’s New Project
+              </h1>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -180,6 +198,7 @@ export default function HomePage() {
                     .post("/api/projects", {
                       name: projectName,
                       url: projectUrl,
+                      username: username ? username : "User",
                     })
                     .then((response) => {
                       setProjects([...projects, response.data]);
@@ -187,6 +206,7 @@ export default function HomePage() {
                   setProjectName("");
                   setProjectUrl("");
                 }}
+                // adds the new project , saves the new list of projects and clears the project name and url states
               >
                 <div className="grid grid-cols-2 gap-6">
                   <div className="grid gap-2">
@@ -202,68 +222,12 @@ export default function HomePage() {
                     </label>
                     <input
                       id="username"
+                      value={username}
                       type="text"
                       placeholder="Kate"
                       className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
+                      onChange={(evt) => setUsername(evt.currentTarget.value)}
                     />
-                  </div>
-                  <div className="grid gap-2">
-                    <label htmlFor="email" className="flex gap-2">
-                      <picture>
-                        <img
-                          src="https://s2.svgbox.net/materialui.svg?ic=email&color=000"
-                          alt="email"
-                          className="w-5 h-5"
-                        />
-                      </picture>
-                      <span className="text-sm">Email</span>
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <label htmlFor="password" className="flex gap-2">
-                      <picture>
-                        <img
-                          src="https://s2.svgbox.net/octicons.svg?ic=lock"
-                          alt="password"
-                          className="w-5 h-5"
-                        />
-                      </picture>
-                      <span className="text-sm">Password</span>
-                    </label>
-                    <input
-                      id="password "
-                      type="password"
-                      placeholder="••••••••"
-                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
-                    />
-                  </div>
-                  <div className="grid gap-2 mb-4">
-                    <label htmlFor="password confirm" className="flex gap-2">
-                      <picture>
-                        <img
-                          src="https://s2.svgbox.net/octicons.svg?ic=lock"
-                          alt="password confirm"
-                          className="w-5 h-5"
-                        />
-                      </picture>
-                      <span className="text-sm">Password confirm</span>
-                    </label>
-                    <input
-                      id="password confirm"
-                      type="password"
-                      placeholder="••••••••"
-                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
-                    />
-                  </div>
-                  <div className="flex gap-2 mb-4">
-                    <input type="checkbox" className="toggle" checked />
-                    <label className="text-sm">Verified</label>
                   </div>
                 </div>
                 <div className="divider"></div>
@@ -311,7 +275,6 @@ export default function HomePage() {
                           Cancel
                         </label>
                         <button
-                          onClick={() => {}}
                           type="submit"
                           className="drawer-button btn bg-black  normal-case w-auto h-fit px-12 py-3"
                         >
