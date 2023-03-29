@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 export default function HomePage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
   const [projectName, setProjectName] = useState<string>("");
   const [projectUrl, setProjectUrl] = useState<string>("");
   const [projects, setProjects] = useState<any[]>([]);
@@ -103,7 +102,7 @@ export default function HomePage() {
             <div className="bg-base-200 py-10 px-10 ">
               <div className="flex mb-10  w-full h-fit">
                 <h2 className="font-bold text-xl w-fit h-fit ">
-                  {"User" ? username : "User"}’s Projects
+                  User’s Projects
                 </h2>
                 <label
                   htmlFor="my-drawer-4"
@@ -161,7 +160,9 @@ export default function HomePage() {
                                   axios
                                     .delete(`/api/projects?id=${p.id}`)
                                     .then((response) => {
-                                      setProjects([...projects, response.data]);
+                                      setProjects(
+                                        projects.filter((pr) => pr.id !== p.id)
+                                      );
                                     });
                                 }}
 
@@ -188,9 +189,6 @@ export default function HomePage() {
           >
             {/* <!-- Sidebar content here --> */}
             <div className="flex flex-col w-fit h-full ">
-              <h1 className="mb-6 text-lg">
-                {username ? username : "User"}’s New Project
-              </h1>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -198,7 +196,6 @@ export default function HomePage() {
                     .post("/api/projects", {
                       name: projectName,
                       url: projectUrl,
-                      username: username ? username : "User",
                     })
                     .then((response) => {
                       setProjects([...projects, response.data]);
@@ -208,30 +205,8 @@ export default function HomePage() {
                 }}
                 // adds the new project , saves the new list of projects and clears the project name and url states
               >
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="grid gap-2">
-                    <label htmlFor="username" className="flex gap-2">
-                      <picture>
-                        <img
-                          src="https://s2.svgbox.net/octicons.svg?ic=person&color=000"
-                          alt="user"
-                          className="w-5 h-5"
-                        />
-                      </picture>
-                      <span className="text-sm">Username</span>
-                    </label>
-                    <input
-                      id="username"
-                      value={username}
-                      type="text"
-                      placeholder="Kate"
-                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
-                      onChange={(evt) => setUsername(evt.currentTarget.value)}
-                    />
-                  </div>
-                </div>
+                <h1 className="mb-6 text-lg">User’s New Project</h1>
                 <div className="divider"></div>
-
                 <div className="flex flex-col gap-4 h-full">
                   <div className="flex flex-col gap-2">
                     <label htmlFor="project name" className="text-sm ">
@@ -274,12 +249,12 @@ export default function HomePage() {
                         >
                           Cancel
                         </label>
-                        <button
-                          type="submit"
+                        <label
+                          htmlFor="my-drawer-4"
                           className="drawer-button btn bg-black  normal-case w-auto h-fit px-12 py-3"
                         >
-                          Create
-                        </button>
+                          <button type="submit">Create</button>
+                        </label>
                       </div>
                     </div>
                   </div>
