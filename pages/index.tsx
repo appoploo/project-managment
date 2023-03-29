@@ -1,142 +1,306 @@
+import { accessLevel, withSessionSsr } from "@/lib/withSession";
+import { useAccount } from "@/providers";
+import axios, { isCancel, AxiosError } from "axios";
+import clsx from "clsx";
+import { GetServerSideProps } from "next";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
-export default function Home() {
+export default function HomePage() {
+  const router = useRouter();
+  const account = useAccount();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  // brings the data from the server in every renender and when the project array changes
+
+  useEffect(() => {
+    axios.get("https://fakestoreapi.com/products").then((e) => {
+      account.setProjects(e.data);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account.projects]);
+
   return (
-    <div className="w-screen h-screen overflow-hidden flex justify-center items-center">
-      <div className=" bg-white w-1/3 h-2/3 flex flex-col px-9 py-8">
-        <div className="flex gap-2 mb-6">
-          <picture>
-            <img
-              className="w-9 h-7"
-              src="/images/project-management-vector-line-icon-260nw-1723602814.webp"
-              alt="project management logo"
-            />
-          </picture>
-          <h1 className=" text-xl font-semibold "> Project Management</h1>
-        </div>
-        <h2 className=" text-2xl font-bold mb-2"> Welcome 😊</h2>
-        <div className="flex gap-0 mb-6">
-          <h3 className=" text-base text-gray-400">
-            Organize your projects in seconds. Don’t have an account?
-          </h3>
-          <button className="text-blue-600 w-20 h-6 normal-case">
-            Sign up
-          </button>
-        </div>
-
-        <form className=" flex flex-col">
-          <div className="flex gap-4 mb-2 w-full h-full">
-            <div className=" w-full">
-              <label htmlFor="email" className="mb-2 block">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                className="bg-gray-50 border h-fit w-full px-3 py-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block"
-              />
-            </div>
-            <div className="w-full">
-              <label htmlFor="password" className="mb-2 block">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                className="bg-gray-50 border h-fit w-full px-3 py-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block"
-              />
-            </div>
-          </div>
-
-          <div className="divider text-gray-400">or</div>
-
-          <div className="flex flex-col mb-6">
-            <Link
-              href="https://accounts.google.com/AccountChooser/signinchooser?service=mail&continue=https%3A%2F%2Fmail.google.com%2Fmail%2F&flowName=GlifWebSignIn&flowEntry=AccountChooser"
-              className="w-full h-14 py-4 border  rounded-lg mb-6 grid place-items-center  hover:bg-gray-50"
-            >
-              <div className="flex gap-1">
-                <svg
-                  className="w-8 h-6 "
-                  viewBox="0 0 21 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+    <div>
+      <div className="drawer drawer-end">
+        <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
+        <div className="drawer-content overflow-y-hidden">
+          {/* <!-- Page content here --> */}
+          <div className="w-screen h-screen overflow-hidden bg-white grid grid-cols-[80px_1fr]">
+            <ul className="menu bg-base-100 border-r border-gray-400 px-2 py-2">
+              <li>
+                <Link
+                  href="/homepage"
+                  className={clsx({
+                    "bg-primary": router.asPath === "/homepage",
+                  })}
                 >
-                  <g clip-path="url(#clip0_13183_10121)">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
                     <path
-                      d="M20.3081 10.2303C20.3081 9.55056 20.253 8.86711 20.1354 8.19836H10.7031V12.0492H16.1046C15.8804 13.2911 15.1602 14.3898 14.1057 15.0879V17.5866H17.3282C19.2205 15.8449 20.3081 13.2728 20.3081 10.2303Z"
-                      fill="#3F83F8"
-                    ></path>
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    />
+                  </svg>
+                </Link>
+              </li>
+              <li>
+                <Link href="">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
                     <path
-                      d="M10.7019 20.0006C13.3989 20.0006 15.6734 19.1151 17.3306 17.5865L14.1081 15.0879C13.2115 15.6979 12.0541 16.0433 10.7056 16.0433C8.09669 16.0433 5.88468 14.2832 5.091 11.9169H1.76562V14.4927C3.46322 17.8695 6.92087 20.0006 10.7019 20.0006V20.0006Z"
-                      fill="#34A853"
-                    ></path>
-                    <path
-                      d="M5.08857 11.9169C4.66969 10.6749 4.66969 9.33008 5.08857 8.08811V5.51233H1.76688C0.348541 8.33798 0.348541 11.667 1.76688 14.4927L5.08857 11.9169V11.9169Z"
-                      fill="#FBBC04"
-                    ></path>
-                    <path
-                      d="M10.7019 3.95805C12.1276 3.936 13.5055 4.47247 14.538 5.45722L17.393 2.60218C15.5852 0.904587 13.1858 -0.0287217 10.7019 0.000673888C6.92087 0.000673888 3.46322 2.13185 1.76562 5.51234L5.08732 8.08813C5.87733 5.71811 8.09302 3.95805 10.7019 3.95805V3.95805Z"
-                      fill="#EA4335"
-                    ></path>
-                  </g>
-                  <defs>
-                    <clipPath id="clip0_13183_10121">
-                      <rect
-                        width="20"
-                        height="20"
-                        fill="white"
-                        transform="translate(0.5)"
-                      ></rect>
-                    </clipPath>
-                  </defs>
-                </svg>
-                <h1>Sign in with Google</h1>
-              </div>
-            </Link>
-            <Link
-              href="https://github.com/login"
-              className="w-full h-14 py-4 border text-center rounded-lg grid place-items-center hover:bg-gray-50"
-            >
-              <div className="flex gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </Link>
+              </li>
+              <li>
+                <Link href="">
+                  <picture>
+                    <img
+                      src="https://s2.svgbox.net/hero-outline.svg?ic=cog&color=000"
+                      width="32"
+                      height="32"
+                      alt="settings"
+                    />
+                  </picture>
+                </Link>
+              </li>
+              <li className="flex mt-auto">
+                <form method="POST" action="/api/logout">
+                  <button type="submit">
+                    <picture>
+                      <img
+                        src="https://s2.svgbox.net/materialui.svg?ic=logout&color=000"
+                        width="32"
+                        height="32"
+                        alt="logout"
+                      />
+                    </picture>
+                  </button>
+                </form>
+              </li>
+            </ul>
+
+            <div className="bg-base-200 py-10 px-10 ">
+              <div className="flex mb-10  w-full h-fit">
+                <h2 className="font-bold text-xl w-fit h-fit ">
+                  User’s Projects
+                </h2>
+                <label
+                  htmlFor="my-drawer-4"
+                  className="drawer-button btn bg-black flex ml-auto normal-case w-auto h-fit px-6 py-3"
                 >
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                </svg>
-                <h2>Sign in with Github</h2>
+                  <span className="text-lg mr-2"> + </span>
+                  <span>New project</span>
+                </label>
               </div>
-            </Link>
-          </div>
-          <div className="form-control w-full h-full  px-2 py-2 mb-6 ">
-            <div className="flex ">
-              <label
-                htmlFor="checkbox"
-                className="flex justify-start items-start"
-              >
+
+              <div className="relative flex justify-center items-center ">
+                <span className="absolute left-2 bottom-7">🔍</span>
                 <input
-                  id="remember"
-                  type="checkbox"
-                  className=" cursor-pointer focus:ring-3 focus:ring-primary-300 w-4 h-4 rounded-full dark:focus:ring-primary-600 mr-2 "
+                  type="text"
+                  placeholder="Search filter"
+                  className="input input-bordered w-full  rounded-full bg-gray-300 mb-4 focus:outline-none placeholder:pl-[14px] px-8"
+                  onChange={(evt) => setSearchTerm(evt.currentTarget.value)}
                 />
-                <span className=" text-gray-400 text-sm ">Remember me</span>
-              </label>
+              </div>
 
-              <button className="text-blue-600 w-25 h-6 normal-case ml-auto text-sm ">
-                Forgot password?
-              </button>
+              <div className="overflow-x-auto">
+                <table className="table w-full">
+                  {/* head */}
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th> 🔑 id</th>
+                      <th>🪪 name</th>
+                      <th>url</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {account.projects
+                      .filter((sm) => sm.name.includes(searchTerm))
+                      .map((p, idx) => (
+                        <tr key={idx} className="hover cursor-pointer">
+                          <th>{idx}</th>
+                          <td>{p.id}</td>
+                          <td>{p.name}</td>
+                          <td>
+                            <Link href={`${p.url}`} className="hover:underline">
+                              {p.url}
+                            </Link>
+                          </td>
+                          <td>
+                            <Link href="">🗑️</Link>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-          <button className="btn w-full bg-blue-600 hover:bg-blue-700 normal-case ">
-            Sign in to your account
-          </button>
-        </form>
+        </div>
+        <div className="drawer-side">
+          <label htmlFor="my-drawer-4" className="drawer-overlay"></label>
+          <div className="flex px-6 pt-4 pb-4 w-fit h-screen bg-base-100 text-base-content ">
+            {/* <!-- Sidebar content here --> */}
+            <div className="flex flex-col w-fit h-full ">
+              <h1 className="mb-6 text-lg"> User’s New Project</h1>
+              <form>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="grid gap-2">
+                    <label htmlFor="username" className="flex gap-2">
+                      <picture>
+                        <img
+                          src="https://s2.svgbox.net/octicons.svg?ic=person&color=000"
+                          alt="user"
+                          className="w-5 h-5"
+                        />
+                      </picture>
+                      <span className="text-sm">Username</span>
+                    </label>
+                    <input
+                      id="username"
+                      type="text"
+                      placeholder="Kate"
+                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <label htmlFor="email" className="flex gap-2">
+                      <picture>
+                        <img
+                          src="https://s2.svgbox.net/materialui.svg?ic=email&color=000"
+                          alt="email"
+                          className="w-5 h-5"
+                        />
+                      </picture>
+                      <span className="text-sm">Email</span>
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <label htmlFor="password" className="flex gap-2">
+                      <picture>
+                        <img
+                          src="https://s2.svgbox.net/octicons.svg?ic=lock"
+                          alt="password"
+                          className="w-5 h-5"
+                        />
+                      </picture>
+                      <span className="text-sm">Password</span>
+                    </label>
+                    <input
+                      id="password "
+                      type="password"
+                      placeholder="••••••••"
+                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
+                    />
+                  </div>
+                  <div className="grid gap-2 mb-4">
+                    <label htmlFor="password confirm" className="flex gap-2">
+                      <picture>
+                        <img
+                          src="https://s2.svgbox.net/octicons.svg?ic=lock"
+                          alt="password confirm"
+                          className="w-5 h-5"
+                        />
+                      </picture>
+                      <span className="text-sm">Password confirm</span>
+                    </label>
+                    <input
+                      id="password confirm"
+                      type="password"
+                      placeholder="••••••••"
+                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
+                    />
+                  </div>
+                  <div className="flex gap-2 mb-4">
+                    <input type="checkbox" className="toggle" checked />
+                    <label className="text-sm">Verified</label>
+                  </div>
+                </div>
+                <div className="divider"></div>
+
+                <div className="flex flex-col gap-4 h-full">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="project name" className="text-sm ">
+                      🇹 Project name
+                    </label>
+                    <input
+                      id="project name"
+                      type="text"
+                      className="input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none  px-6"
+                      required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 ">
+                    <label htmlFor="url" className="text-sm">
+                      🔗 Url
+                    </label>
+                    <input
+                      id="url"
+                      type="url"
+                      placeholder="https://www.flowbite.com"
+                      className="peer input input-bordered w-full  rounded-md bg-gray-300  focus:outline-none invalid:border-pink-500 invalid:ring-pink-500 px-6"
+                      required
+                    />
+                    <p className="invisible mt-2 text-sm text-pink-600 peer-invalid:visible">
+                      Please provide a valid email address.
+                    </p>
+                  </div>
+                  <div className="flex  justify-end items-end mt-auto ">
+                    <div className="form-control">
+                      <div className="flex gap-2 mb-2">
+                        <label
+                          htmlFor="my-drawer-4"
+                          className="drawer-button btn bg-transparent border-none text-black hover:bg-gray-300 normal-case w-auto h-fit px-12 py-3"
+                        >
+                          Cancel
+                        </label>
+                        <button
+                          type="submit"
+                          className="drawer-button btn bg-black  normal-case w-auto h-fit px-12 py-3"
+                        >
+                          Create
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = withSessionSsr(
+  async function getServerSideProps(ctx) {
+    return accessLevel("admin", ctx);
+  }
+);
