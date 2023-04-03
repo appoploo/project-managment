@@ -13,7 +13,7 @@ export default function HomePage() {
   const [projectUrl, setProjectUrl] = useState<string>("");
   const [projects, setProjects] = useState<any[]>([]);
 
-  // brings the data from the server in every render
+  // brings the data from the server in every render and saves them in a state
 
   useEffect(() => {
     axios.get("/api/projects").then((e) => {
@@ -26,9 +26,9 @@ export default function HomePage() {
     <div>
       <div className="drawer drawer-end">
         <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content overflow-y-hidden">
+        <div className="drawer-content ">
           {/* <!-- Page content here --> */}
-          <div className="w-screen h-screen overflow-hidden bg-white grid grid-cols-[80px_1fr]">
+          <div className="w-screen h-screen overflow-hidden bg-white grid xs:grid-cols-[70px_1fr] md:grid-cols-[80px_1fr]">
             <ul className="menu bg-base-100 border-r border-gray-400 px-2 py-2">
               <li>
                 <Link
@@ -39,7 +39,7 @@ export default function HomePage() {
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8"
+                    className="xs:h-6 xs:w-6 md:h-8 md:w-8"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -57,7 +57,7 @@ export default function HomePage() {
                 <Link href="">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8"
+                    className="xs:h-6 xs:w-6 md:h-8 md:w-8"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -76,8 +76,7 @@ export default function HomePage() {
                   <picture>
                     <img
                       src="https://s2.svgbox.net/hero-outline.svg?ic=cog&color=000"
-                      width="32"
-                      height="32"
+                      className="xs:h-6 xs:w-6 md:h-8 md:w-8"
                       alt="settings"
                     />
                   </picture>
@@ -89,8 +88,7 @@ export default function HomePage() {
                     <picture>
                       <img
                         src="https://s2.svgbox.net/materialui.svg?ic=logout&color=000"
-                        width="32"
-                        height="32"
+                        className="xs:h-6 xs:w-6 md:h-8 md:w-8"
                         alt="logout"
                       />
                     </picture>
@@ -99,32 +97,34 @@ export default function HomePage() {
               </li>
             </ul>
 
-            <div className="bg-base-200 py-10 px-10 ">
+            <div className="bg-base-200 py-10 xs:px-6 md:px-10 ">
               <div className="flex mb-10  w-full h-fit">
-                <h2 className="font-bold text-xl w-fit h-fit ">
+                <h2 className="font-bold xs:mr-8  xs:text-base md:text-xl w-fit h-fit  ">
                   User’s Projects
                 </h2>
                 <label
                   htmlFor="my-drawer-4"
-                  className="drawer-button btn bg-black flex ml-auto normal-case w-auto h-fit px-6 py-3"
+                  className="drawer-button btn bg-black flex sm:ml-4 md:ml-auto normal-case w-auto h-fit xs:px-2 xs:py-2 md:px-6 md:py-3"
                 >
-                  <span className="text-lg mr-2"> + </span>
-                  <span>New project</span>
+                  <span className="xs:text-sm md:text-lg mr-2"> + </span>
+                  <span className="xs:text-sm md:text-lg">New project</span>
                 </label>
               </div>
 
-              <div className="relative flex justify-center items-center ">
-                <span className="absolute left-2 bottom-7">🔍</span>
+              <div className="relative flex justify-center items-center xs:w-fit md:w-full ">
+                <span className="absolute xs:text-sm md:text-lg left-2 bottom-7 ">
+                  🔍
+                </span>
                 <input
                   type="text"
                   placeholder="Search filter"
-                  className="input input-bordered w-full  rounded-full bg-gray-300 mb-4 focus:outline-none placeholder:pl-[14px] px-8"
+                  className="input input-bordered xs:w-fit md:w-full  rounded-full bg-gray-300 mb-4 focus:outline-none xs:placeholder:pl-[20px] md:placeholder:pl-[14px] xs:px-3 md:px-8"
                   onChange={(evt) => setSearchTerm(evt.currentTarget.value)}
                 />
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="table w-full">
+              <div className=" w-screen  overflow-auto  border border-black">
+                <table className="table  w-full h-full ">
                   {/* head */}
                   <thead>
                     <tr>
@@ -166,7 +166,7 @@ export default function HomePage() {
                                     });
                                 }}
 
-                                // deletes the selected project and  the new list of projects
+                                // deletes the selected project and saves the new list of projects
                               >
                                 🗑️
                               </button>
