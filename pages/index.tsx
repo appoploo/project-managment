@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -22,13 +22,20 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const ref = useRef<HTMLInputElement>(null);
+
   return (
     <div>
       <div className="drawer drawer-end">
-        <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
+        <input
+          ref={ref}
+          id="my-drawer-4"
+          type="checkbox"
+          className="drawer-toggle"
+        />
         <div className="drawer-content ">
           {/* <!-- Page content here --> */}
-          <div className="w-screen h-screen overflow-hidden bg-white grid xs:grid-cols-[70px_1fr] md:grid-cols-[80px_1fr]">
+          <div className="w-full h-full overflow-hidden  grid xs:grid-cols-[70px_1fr] md:grid-cols-[80px_1fr]">
             <ul className="menu bg-base-100 border-r border-gray-400 px-2 py-2">
               <li>
                 <Link
@@ -97,34 +104,34 @@ export default function HomePage() {
               </li>
             </ul>
 
-            <div className="bg-base-200 py-10 xs:px-6 md:px-10 ">
+            <div className="bg-base-200 py-10 xs:px-6 md:px-10 overflow-auto">
               <div className="flex mb-10  w-full h-fit">
-                <h2 className="font-bold xs:mr-8  xs:text-base md:text-xl w-fit h-fit  ">
+                <h2 className="font-extrabold mr-3 mt-3 text-base md:text-xl w-fit h-fit  ">
                   User’s Projects
                 </h2>
                 <label
                   htmlFor="my-drawer-4"
-                  className="drawer-button btn bg-black flex sm:ml-4 md:ml-auto normal-case w-auto h-fit xs:px-2 xs:py-2 md:px-6 md:py-3"
+                  className="drawer-button btn bg-black flex ml-4 md:ml-auto normal-case w-auto h-fit px-2 py-2 md:px-6 md:py-3"
                 >
-                  <span className="xs:text-sm md:text-lg mr-2"> + </span>
-                  <span className="xs:text-sm md:text-lg">New project</span>
+                  <span className="text-sm md:text-lg mr-2"> + </span>
+                  <span className="text-sm md:text-lg">New project</span>
                 </label>
               </div>
 
-              <div className="relative flex justify-center items-center xs:w-fit md:w-full ">
-                <span className="absolute xs:text-sm md:text-lg left-2 bottom-7 ">
+              <div className="relative  xs:w-fit md:w-full mb-4">
+                <span className="absolute xs:text-sm md:text-lg left-4 flex h-full items-center">
                   🔍
                 </span>
                 <input
                   type="text"
                   placeholder="Search filter"
-                  className="input input-bordered xs:w-fit md:w-full  rounded-full bg-gray-300 mb-4 focus:outline-none xs:placeholder:pl-[20px] md:placeholder:pl-[14px] xs:px-3 md:px-8"
+                  className="input input-bordered w-full rounded-full bg-gray-300  focus:outline-none px-10"
                   onChange={(evt) => setSearchTerm(evt.currentTarget.value)}
                 />
               </div>
 
-              <div className=" w-screen  overflow-auto  border border-black">
-                <table className="table  w-full h-full ">
+              <div className="overflow-auto border border-black border-opacity-25">
+                <table className="table   w-full h-full ">
                   {/* head */}
                   <thead>
                     <tr>
@@ -132,6 +139,7 @@ export default function HomePage() {
                       <th> 🔑 id</th>
                       <th>🪪 name</th>
                       <th>url</th>
+                      <th>actions</th>
                     </tr>
                   </thead>
                   {/* body */}
@@ -153,7 +161,18 @@ export default function HomePage() {
                                 {p.url}
                               </Link>
                             </td>
-                            <td>
+                            <td className="flex gap-x-1">
+                              <Link
+                                href={`?id=${p.id}`}
+                                onClick={() => {
+                                  setProjectName(p.name);
+                                  setProjectUrl(p.url);
+                                  if (!ref.current) return;
+                                  ref.current.checked = true;
+                                }} // shows the selected project's details
+                              >
+                                ✏️
+                              </Link>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -165,7 +184,6 @@ export default function HomePage() {
                                       );
                                     });
                                 }}
-
                                 // deletes the selected project and saves the new list of projects
                               >
                                 🗑️
@@ -192,13 +210,15 @@ export default function HomePage() {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
+                  if (!ref.current) return;
+                  ref.current.checked = false;
                   axios
                     .post("/api/projects", {
                       name: projectName,
                       url: projectUrl,
                     })
                     .then((response) => {
-                      setProjects([...projects, response.data]);
+                      setProjects([response.data, ...projects]);
                     });
                   setProjectName("");
                   setProjectUrl("");
@@ -206,7 +226,6 @@ export default function HomePage() {
                 // adds the new project , saves the new list of projects and clears the project name and url states
               >
                 <h1 className="mb-6 text-lg">User’s New Project</h1>
-                <div className="divider"></div>
                 <div className="flex flex-col gap-4 h-full">
                   <div className="flex flex-col gap-2">
                     <label htmlFor="project name" className="text-sm ">
@@ -244,16 +263,26 @@ export default function HomePage() {
                     <div className="form-control">
                       <div className="flex gap-2 mb-2">
                         <label
+                          onClick={() => {
+                            if (router.asPath.includes("id=")) router.push("/");
+                          }}
                           htmlFor="my-drawer-4"
                           className="drawer-button btn bg-transparent border-none text-black hover:bg-gray-300 normal-case w-auto h-fit px-12 py-3"
                         >
                           Cancel
                         </label>
                         <label
+                          onClick={() => {
+                            if (router.asPath.includes("id=")) router.push("/");
+                          }}
                           htmlFor="my-drawer-4"
                           className="drawer-button btn bg-black  normal-case w-auto h-fit px-12 py-3"
                         >
-                          <button type="submit">Create</button>
+                          <button type="submit">
+                            {router.asPath.includes("id=")
+                              ? "Update"
+                              : "Create"}
+                          </button>
                         </label>
                       </div>
                     </div>
