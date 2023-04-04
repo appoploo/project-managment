@@ -19,22 +19,21 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
       const record = await pb
         .collection("appoploo_projects")
         .create({ ...req.body });
-      res.status(200).json(record);
+      return res.status(200).json(record);
 
     case "PUT":
       const updatedRecord = await pb
 
         .collection("appoploo_projects")
         .update(`${req.query.id}`, req.body);
-      res.status(200).json(updatedRecord);
+      return res.status(200).json(updatedRecord);
     case "DELETE":
       const deletedRecord = await pb
         .collection("appoploo_projects")
         .delete(`${req.query.id}`);
-      res.status(200).json(deletedRecord);
+      return res.status(200).json(deletedRecord);
 
     default:
-      res.status(405).send("No method allowed");
-      break;
+      return res.status(405).send("No method allowed");
   }
 }

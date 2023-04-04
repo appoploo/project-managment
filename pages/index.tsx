@@ -23,6 +23,7 @@ export default function HomePage() {
   }, []);
 
   const ref = useRef<HTMLInputElement>(null);
+  const id = router.query.id as string;
 
   return (
     <div>
@@ -35,18 +36,19 @@ export default function HomePage() {
         />
         <div className="drawer-content ">
           {/* <!-- Page content here --> */}
-          <div className="w-full h-full overflow-hidden  grid xs:grid-cols-[70px_1fr] md:grid-cols-[80px_1fr]">
+          <div className="w-full h-full overflow-hidden  grid grid-cols-[70px_1fr] md:grid-cols-[80px_1fr]">
             <ul className="menu bg-base-100 border-r border-gray-400 px-2 py-2">
               <li>
                 <Link
                   href="/"
                   className={clsx({
-                    "bg-primary": router.asPath === "/",
+                    "bg-primary":
+                      router.asPath === "/" || router.asPath === `/?id=${id}`,
                   })}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="xs:h-6 xs:w-6 md:h-8 md:w-8"
+                    className="h-6 w-6 md:h-8 md:w-8"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -64,7 +66,7 @@ export default function HomePage() {
                 <Link href="">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="xs:h-6 xs:w-6 md:h-8 md:w-8"
+                    className="h-6 w-6 md:h-8 md:w-8"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -83,7 +85,7 @@ export default function HomePage() {
                   <picture>
                     <img
                       src="https://s2.svgbox.net/hero-outline.svg?ic=cog&color=000"
-                      className="xs:h-6 xs:w-6 md:h-8 md:w-8"
+                      className="h-6 w-6 md:h-8 md:w-8"
                       alt="settings"
                     />
                   </picture>
@@ -95,7 +97,7 @@ export default function HomePage() {
                     <picture>
                       <img
                         src="https://s2.svgbox.net/materialui.svg?ic=logout&color=000"
-                        className="xs:h-6 xs:w-6 md:h-8 md:w-8"
+                        className="h-6 w-6 md:h-8 md:w-8"
                         alt="logout"
                       />
                     </picture>
@@ -104,12 +106,18 @@ export default function HomePage() {
               </li>
             </ul>
 
-            <div className="bg-base-200 py-10 xs:px-6 md:px-10 overflow-auto">
+            <div className="bg-base-200 py-10 px-6 md:px-10 overflow-auto">
               <div className="flex mb-10  w-full h-fit">
                 <h2 className="font-extrabold mr-3 mt-3 text-base md:text-xl w-fit h-fit  ">
                   User’s Projects
                 </h2>
+
                 <label
+                  onClick={() => {
+                    router.replace("/");
+                    setProjectName("");
+                    setProjectUrl("");
+                  }}
                   htmlFor="my-drawer-4"
                   className="drawer-button btn bg-black flex ml-4 md:ml-auto normal-case w-auto h-fit px-2 py-2 md:px-6 md:py-3"
                 >
@@ -118,7 +126,7 @@ export default function HomePage() {
                 </label>
               </div>
 
-              <div className="relative  xs:w-fit md:w-full mb-4">
+              <div className="relative w-fit md:w-full mb-4">
                 <span className="absolute xs:text-sm md:text-lg left-4 flex h-full items-center">
                   🔍
                 </span>
@@ -145,7 +153,7 @@ export default function HomePage() {
                   {/* body */}
                   <tbody>
                     {projects
-                      .filter((sm) => sm.name.includes(searchTerm))
+                      // .filter((sm) => sm.name.includes(searchTerm))
                       .map((p, idx) => {
                         return (
                           <tr key={p.id} className="hover cursor-pointer">
@@ -161,10 +169,11 @@ export default function HomePage() {
                                 {p.url}
                               </Link>
                             </td>
-                            <td className="flex gap-x-1">
+                            <td className="flex gap-x-4">
                               <Link
                                 href={`?id=${p.id}`}
                                 onClick={() => {
+                                  console.log("edit");
                                   setProjectName(p.name);
                                   setProjectUrl(p.url);
                                   if (!ref.current) return;
@@ -176,6 +185,7 @@ export default function HomePage() {
                               <button
                                 type="button"
                                 onClick={() => {
+                                  console.log("delete");
                                   axios
                                     .delete(`/api/projects?id=${p.id}`)
                                     .then((response) => {
@@ -212,18 +222,34 @@ export default function HomePage() {
                   e.preventDefault();
                   if (!ref.current) return;
                   ref.current.checked = false;
-                  axios
-                    .post("/api/projects", {
-                      name: projectName,
-                      url: projectUrl,
-                    })
-                    .then((response) => {
-                      setProjects([response.data, ...projects]);
-                    });
+                  if (id) {
+                    axios
+                      .put(`/api/projects?id=${id}`, {
+                        name: projectName,
+                        url: projectUrl,
+                      })
+                      .then((response) => {
+                        setProjects([
+                          response.data,
+                          ...projects.filter(
+                            (pr) => pr.id !== response.data.id
+                          ),
+                        ]);
+                      });
+                  } else {
+                    axios
+                      .post("/api/projects", {
+                        name: projectName,
+                        url: projectUrl,
+                      })
+                      .then((response) => {
+                        setProjects([response.data, ...projects]);
+                      });
+                  }
                   setProjectName("");
                   setProjectUrl("");
                 }}
-                // adds the new project , saves the new list of projects and clears the project name and url states
+                // changes the selected project ,adds the new project , saves the new list of projects and clears the project name and url states
               >
                 <h1 className="mb-6 text-lg">User’s New Project</h1>
                 <div className="flex flex-col gap-4 h-full">
@@ -264,7 +290,7 @@ export default function HomePage() {
                       <div className="flex gap-2 mb-2">
                         <label
                           onClick={() => {
-                            if (router.asPath.includes("id=")) router.push("/");
+                            if (id) router.push("/");
                           }}
                           htmlFor="my-drawer-4"
                           className="drawer-button btn bg-transparent border-none text-black hover:bg-gray-300 normal-case w-auto h-fit px-12 py-3"
@@ -272,16 +298,11 @@ export default function HomePage() {
                           Cancel
                         </label>
                         <label
-                          onClick={() => {
-                            if (router.asPath.includes("id=")) router.push("/");
-                          }}
                           htmlFor="my-drawer-4"
                           className="drawer-button btn bg-black  normal-case w-auto h-fit px-12 py-3"
                         >
                           <button type="submit">
-                            {router.asPath.includes("id=")
-                              ? "Update"
-                              : "Create"}
+                            {id ? "Update" : "Create"}
                           </button>
                         </label>
                       </div>
